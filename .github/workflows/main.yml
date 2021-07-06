@@ -5,7 +5,7 @@ name: CI to Docker Hub
 # Controls when the workflow will run
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/simplewhale:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
