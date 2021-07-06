@@ -20,12 +20,14 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: false
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
+#           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
+          tags: test_image:latest
           
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
+#           image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
+          image-ref: test_image:latest
           format: 'table'
           exit-code: '1'
           ignore-unfixed: false
