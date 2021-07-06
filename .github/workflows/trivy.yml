@@ -10,11 +10,11 @@ jobs:
 
       - name: Build an image from Dockerfile [REQUIRED STEP]
         run: |
-          docker build -f ./Dockerfile
+          docker build -t test_container:latest
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'test:latest'
+          image-ref: 'test_container:latest'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: false
