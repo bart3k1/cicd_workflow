@@ -1,9 +1,11 @@
-FROM ubuntu:latest
+FROM ubuntu:20.10
 
 
 RUN apt-get update && \
-    apt install pip -y && \
-    pip install falcon && \
+    apt-get install pip -y && \
+    pip install --no-cache-dir falcon==3.0.1 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
     mkdir /myapp
 
 
