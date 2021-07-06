@@ -8,13 +8,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build an image from Dockerfile [REQUIRED STEP]
-        run: |
-          docker build -t test_container:latest
+      
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: false
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
+          
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'test_container:latest'
+          image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
           format: 'table'
           exit-code: '1'
           ignore-unfixed: false
