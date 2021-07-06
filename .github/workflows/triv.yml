@@ -1,5 +1,5 @@
 
-name: CI to Docker Hub
+name: TRIV
 
 # Controls when the workflow will run
 on:
