@@ -20,8 +20,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       
-      - name: Hadolint test
-      - uses: actions/checkout@v2 
+      - uses: actions/checkout@v2
       - uses: hadolint/hadolint-action@v1.5.0
         with:
           dockerfile: Dockerfile
