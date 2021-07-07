@@ -1,5 +1,5 @@
 
-name: Build with Compose
+name: Build with Compose 
 
 on:
   push:
