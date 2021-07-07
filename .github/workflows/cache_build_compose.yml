@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    
       - name: Check Out Repo 
         uses: actions/checkout@v2
 
@@ -24,6 +25,35 @@ jobs:
           key: ${{ runner.os }}-docker-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-docker-
+      
+      - name: Load cached Docker layers
+        run: |
+          if [ -d "docker-cache" ]; then
+            cat docker-cache/x* > ${{ env.tag-name }}.tar
+            docker load < ${{ env.tag-name }}.tar
+            rm -rf docker-cache
+            rm -rf ${{ env.tag-name }}.tar
+          fi
+      
+      - name: Build image
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          docker-compose build ${{ env.tag-name }}
+          docker save ${{ env.tag-name }}:${{ env.version }} $(docker history -q ${{ env.tag-name }}:${{ env.version }} | awk '!/<missing>/{print}') > ${{ env.tag-name }}.tar
+          mkdir docker-cache
+          split -b 100m ${{ env.tag-name }}.tar docker-cache/x
+          rm -rf ${{ env.tag-name }}.tar
+#       - name: Check Out Repo 
+#         uses: actions/checkout@v2
+
+#       - name: Load Cache Keys
+#         uses: actions/cache@v1
+#         id: cache
+#         with:
+#           path: docker-cache
+#           key: ${{ runner.os }}-docker-${{ github.sha }}
+#           restore-keys: |
+#             ${{ runner.os }}-docker-
 
       # - name: Set up Docker Buildx
       #   id: buildx
@@ -52,22 +82,22 @@ jobs:
       #       ${{ runner.os }}-build-
       #       ${{ runner.os }}-
       
-      - name: Load layers
-        run: |
-          if [ -d "docker-cache" ]; then
-            cat docker-cache/x* > cached-layer.tar
-            docker load < cached-layer.tar
-            rm -rf docker-cache
-            rm -rf cached-layer.tar
-          fi
-      - name: Build image
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          docker-compose build cached-layer
-          docker save cached-layer:latest $(docker history -q cached-layer:latest | awk '!/<missing>/{print}') > cached-layer.tar
-          mkdir docker-cache
-          split -b 100m cached-layer.tar docker-cache/x
-          rm -rf cached-layer.tar
+#       - name: Load layers
+#         run: |
+#           if [ -d "docker-cache" ]; then
+#             cat docker-cache/x* > cached-layer.tar
+#             docker load < cached-layer.tar
+#             rm -rf docker-cache
+#             rm -rf cached-layer.tar
+#           fi
+#       - name: Build image
+#         if: steps.cache.outputs.cache-hit != 'true'
+#         run: |
+#           docker-compose build cached-layer
+#           docker save cached-layer:latest $(docker history -q cached-layer:latest | awk '!/<missing>/{print}') > cached-layer.tar
+#           mkdir docker-cache
+#           split -b 100m cached-layer.tar docker-cache/x
+#           rm -rf cached-layer.tar
 
       # - name: Docker Compose Build
       #   run: docker-compose build
