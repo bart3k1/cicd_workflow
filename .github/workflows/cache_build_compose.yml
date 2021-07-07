@@ -1,72 +1,30 @@
-
-name: Build with Compose
-
+name: The showdown
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-    
+  push: {}
 jobs:
-
-  build:
+#   build_no_cache:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - run: docker build . -t thing
+#   build_no_cache_buildkit:
+#     env:
+#       DOCKER_BUILDKIT: '1'
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - run: docker build . -t thing
+  build_with_docker_save_load:
     runs-on: ubuntu-latest
-    
     steps:
-      # - name: Set up Docker Buildx
-      #   id: buildx
-      #   uses: docker/setup-buildx-action@master
-
-      # - name: Cache Docker layers
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: /tmp/.buildx-cache
-      #     key: ${{ runner.os }}-buildx-${{ github.sha }}
-      #     restore-keys: ${{ runner.os }}-buildx-
-    
-      - name: Check Out Repo 
-        uses: actions/checkout@v2
-
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-docker
-        with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: /var/lib/docker
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - name: Docker Compose Build
-        run: docker-compose build
-      
-      # - name: Docker Compose Build
-      #   uses: actions/checkout@v2
-
-      # - name: Lint Dockerfile
-      #   uses: brpaz/hadolint-action@master
-      #   with:
-      #     dockerfile: "Dockerfile"
-      - name: Check with Hadolint
-        
-        uses: hadolint/hadolint-action@v1.5.0
-        with:
-          dockerfile: Dockerfile
-
-
-      - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
-#           image-ref: test_image:latest
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: false
-          severity: 'CRITICAL'
-
-
-
-  
+    - uses: actions/checkout@v2
+    - id: cache-docker
+      uses: actions/cache@v1
+      with:
+        path: /tmp/docker-save
+        key: docker-save-${{ hashFiles('Dockerfile') }}
+    - run: docker load -i /tmp/docker-save/snapshot.tar || true
+      if: steps.cache-docker.outputs.cache-hit == 'true'
+    - run: docker build . -t thing --cache-from=thing-cache
+    - run: docker tag thing thing-cache && mkdir -p /tmp/docker-save && docker save thing-cache -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
+      if: always() && steps.cache-docker.outputs.cache-hit != 'true'
