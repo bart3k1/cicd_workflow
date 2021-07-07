@@ -2,18 +2,18 @@ name: The showdown
 on:
   push: {}
 jobs:
-  build_no_cache:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: docker build . -t thing
-  build_no_cache_buildkit:
-    env:
-      DOCKER_BUILDKIT: '1'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: docker build . -t thing
+#   build_no_cache:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - run: docker build . -t thing
+#   build_no_cache_buildkit:
+#     env:
+#       DOCKER_BUILDKIT: '1'
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - run: docker build . -t thing
   build_with_docker_save_load:
     runs-on: ubuntu-latest
     steps:
