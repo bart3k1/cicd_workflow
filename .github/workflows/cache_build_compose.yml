@@ -1,3 +1,4 @@
+
 name: Build with Compose
 
 on:
@@ -41,3 +42,21 @@ jobs:
 
       - name: Docker Compose Build
         run: docker-compose build
+      
+      # - name: Docker Compose Build
+      #   uses: actions/checkout@v2
+
+      - name: Lint Dockerfile
+        uses: brpaz/hadolint-action@master
+        with:
+          dockerfile: "Dockerfile"
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/falcon_app:latest
+#           image-ref: test_image:latest
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: false
+          severity: 'CRITICAL'
