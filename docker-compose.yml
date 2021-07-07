@@ -1,15 +1,29 @@
-version: '3'
+# version: '3'
 
+# services:
+
+#     falcon_app:
+#       container_name: falcon_container
+#       build:
+#         dockerfile: Dockerfile
+#         context: .
+#       image: bart3k1/falcon_app:latest
+#       volumes:
+#         - /home/barweg/Desktop/Katarti_workshop/Day_01:/myapp
+#       ports:
+#         - 8000:8000
+#     # image: ubuntu_falcon:latest
+
+
+version: '3.3'
 services:
-
     falcon_app:
-      container_name: falcon_container
-      build:
-        dockerfile: Dockerfile
-        context: .
-      image: bart3k1/falcon_app:latest
-      volumes:
-        - /home/barweg/Desktop/Katarti_workshop/Day_01:/myapp
-      ports:
-        - 8000:8000
-    # image: ubuntu_falcon:latest
+        build: 
+            context: .
+            cache_from: 
+                - falcon_app:ver1.5
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/app
+        image: falcon_app:ver1.5
