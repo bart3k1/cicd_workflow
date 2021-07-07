@@ -13,6 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Check Out Repo 
+        uses: actions/checkout@v2
+
+      - name: Load Cache Keys
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: docker-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
       # - name: Set up Docker Buildx
       #   id: buildx
       #   uses: docker/setup-buildx-action@master
@@ -24,8 +36,8 @@ jobs:
       #     key: ${{ runner.os }}-buildx-${{ github.sha }}
       #     restore-keys: ${{ runner.os }}-buildx-
     
-      - name: Check Out Repo 
-        uses: actions/checkout@v2
+      # - name: Check Out Repo 
+      #   uses: actions/checkout@v2
 
       - name: Cache node modules
         uses: actions/cache@v2
@@ -39,9 +51,26 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+      
+      - name: Load layers
+        run: |
+          if [ -d "docker-cache" ]; then
+            cat docker-cache/x* > cached-layer.tar
+            docker load < cached-layer.tar
+            rm -rf docker-cache
+            rm -rf cached-layer.tar
+          fi
+      - name: Build image
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          docker-compose build cached-layer
+          docker save cached-layer:latest $(docker history -q cached-layer:latest | awk '!/<missing>/{print}') > cached-layer.tar
+          mkdir docker-cache
+          split -b 100m cached-layer.tar docker-cache/x
+          rm -rf cached-layer.tar
 
-      - name: Docker Compose Build
-        run: docker-compose build
+      # - name: Docker Compose Build
+      #   run: docker-compose build
       
       # - name: Docker Compose Build
       #   uses: actions/checkout@v2
@@ -66,7 +95,3 @@ jobs:
           exit-code: '1'
           ignore-unfixed: false
           severity: 'CRITICAL'
-
-      
-
-  
