@@ -1,0 +1,28 @@
+# This is a basic workflow to help you get started with Actions
+
+name: build_with_docker_save_load
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  jobs:
+    build_with_docker_save_load:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - id: cache-docker
+      uses: actions/cache@v1
+      with:
+        path: /tmp/docker-save
+        key: docker-save-${{ hashFiles('Dockerfile') }}
+    - run: docker load -i /tmp/docker-save/snapshot.tar || true
+      if: steps.cache-docker.outputs.cache-hit == 'true'
+    - run: docker build . -t thing --cache-from=thing-cache
+    - run: docker tag thing thing-cache && mkdir -p /tmp/docker-save && docker save thing-cache -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
+      if: always() && steps.cache-docker.outputs.cache-hit != 'true'
