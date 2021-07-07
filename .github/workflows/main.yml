@@ -1,4 +1,4 @@
-name: The showdown
+name: Cache layers
 on:
   push: {}
 jobs:
@@ -25,6 +25,6 @@ jobs:
         key: docker-save-${{ hashFiles('Dockerfile') }}
     - run: docker load -i /tmp/docker-save/snapshot.tar || true
       if: steps.cache-docker.outputs.cache-hit == 'true'
-    - run: docker-compose build -t thing --cache-from=thing-cache
+    - run: docker build -t thing --cache-from=thing-cache
     - run: docker tag thing thing-cache && mkdir -p /tmp/docker-save && docker save thing-cache -o /tmp/docker-save/snapshot.tar && ls -lh /tmp/docker-save || true
       if: always() && steps.cache-docker.outputs.cache-hit != 'true'
