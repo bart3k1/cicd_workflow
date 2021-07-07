@@ -11,7 +11,10 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    
+    env:
+      tag-name: falcon-app-layers
+      version: ver1.5
+      
     steps:
     
       - name: Check Out Repo 
