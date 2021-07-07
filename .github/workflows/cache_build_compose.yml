@@ -1,3 +1,4 @@
+
 name: Build with Compose
 
 on:
@@ -38,18 +39,18 @@ jobs:
       # - name: Check Out Repo 
       #   uses: actions/checkout@v2
 
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-docker
-        with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: /var/lib/docker
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+      # - name: Cache node modules
+      #   uses: actions/cache@v2
+      #   env:
+      #     cache-name: cache-docker
+      #   with:
+      #     # npm cache files are stored in `~/.npm` on Linux/macOS
+      #     path: /var/lib/docker
+      #     key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/Dockerfile') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-build-${{ env.cache-name }}-
+      #       ${{ runner.os }}-build-
+      #       ${{ runner.os }}-
       
       - name: Load layers
         run: |
